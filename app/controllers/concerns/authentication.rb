@@ -34,7 +34,8 @@ module Authentication
     def require_authentication
       return if signed_in?
 
-      session[:return_to] = request.fullpath if request.get?
+      # HEAD is routed like GET but `request.get?` is false for it, so check both.
+      session[:return_to] = request.fullpath if request.get? || request.head?
       redirect_to login_path, alert: "Please sign in to continue."
     end
 

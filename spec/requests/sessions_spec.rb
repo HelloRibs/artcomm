@@ -61,6 +61,15 @@ RSpec.describe "Sessions" do
       expect(response).to redirect_to(account_path)
     end
 
+    it "also stores the destination when the page was first requested with HEAD" do
+      head account_path
+      expect(response).to redirect_to(login_path)
+
+      post login_path, params: { email: user.email, password: password }
+
+      expect(response).to redirect_to(account_path)
+    end
+
     it "issues a new session id to guard against session fixation" do
       get login_path
       session_id_before = session.id
