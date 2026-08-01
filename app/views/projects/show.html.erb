@@ -10,8 +10,36 @@
     <p><%= @project.description %></p>
   <% end %>
 
-  <%# Art pieces land here in the next slice. %>
-  <p>No pieces in this gallery yet.</p>
+  <% if @art_pieces.any? %>
+    <ul>
+      <% @art_pieces.each do |piece| %>
+        <li>
+          <figure>
+            <%= image_tag piece.image.variant(:display), alt: piece.title %>
+            <figcaption>
+              <h3><%= piece.title %></h3>
+              <% if piece.description.present? %>
+                <p><%= piece.description %></p>
+              <% end %>
+              <% if piece.priced? %>
+                <p><%= piece.formatted_price %></p>
+              <% end %>
+              <%# Only rendered when the artist has given a WhatsApp number. %>
+              <% inquiry_url = whatsapp_inquiry_url(piece, page_url: project_url(@artist.username, @project)) %>
+              <% if inquiry_url %>
+                <p>
+                  <%= link_to "Ask about this piece on WhatsApp", inquiry_url,
+                        rel: "noopener nofollow", target: "_blank" %>
+                </p>
+              <% end %>
+            </figcaption>
+          </figure>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>No pieces in this gallery yet.</p>
+  <% end %>
 </article>
 
 <p><%= link_to "← All galleries", artist_path(@artist.username) %></p>

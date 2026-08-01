@@ -1,0 +1,5 @@
+<h1>Edit <%= @art_piece.title %></h1>
+
+<%= render "form", project: @project, art_piece: @art_piece %>
+
+<p><%= link_to "Back", dashboard_project_path(@project) %></p>

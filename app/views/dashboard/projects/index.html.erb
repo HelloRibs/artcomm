@@ -3,14 +3,20 @@
 <p><%= link_to "New gallery", new_dashboard_project_path %></p>
 
 <% if @projects.any? %>
-  <ul>
-    <% @projects.each do |project| %>
+  <ol>
+    <% @projects.each_with_index do |project, index| %>
       <li>
         <%= link_to project.title, dashboard_project_path(project) %>
         <%= project.published? ? "(published)" : "(draft)" %>
+        <% unless index.zero? %>
+          <%= button_to "Up", move_dashboard_project_path(project, direction: "up") %>
+        <% end %>
+        <% unless index == @projects.size - 1 %>
+          <%= button_to "Down", move_dashboard_project_path(project, direction: "down") %>
+        <% end %>
       </li>
     <% end %>
-  </ul>
+  </ol>
 <% else %>
   <p>You haven't created a gallery yet.</p>
 <% end %>

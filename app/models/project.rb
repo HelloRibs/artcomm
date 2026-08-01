@@ -1,5 +1,6 @@
 class Project < ApplicationRecord
   belongs_to :user
+  has_many :art_pieces, -> { ordered }, dependent: :destroy, inverse_of: :project
 
   SLUG_FORMAT = /\A[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\z/
 

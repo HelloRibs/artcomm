@@ -11,11 +11,37 @@
   <%= link_to project_url(current_user.username, @project), project_path(current_user.username, @project) %>
 </p>
 
-<%# Art piece management lands here in the next slice. %>
+<h2>Pieces</h2>
+
+<p><%= link_to "Add a piece", new_dashboard_project_art_piece_path(@project) %></p>
+
+<% if @art_pieces.any? %>
+  <ol>
+    <% @art_pieces.each_with_index do |piece, index| %>
+      <li>
+        <%= image_tag piece.image.variant(:thumb), alt: piece.title, width: 120 %>
+        <strong><%= piece.title %></strong>
+        <% if piece.priced? %><span><%= piece.formatted_price %></span><% end %>
+
+        <%= link_to "Edit", edit_dashboard_project_art_piece_path(@project, piece) %>
+        <% unless index.zero? %>
+          <%= button_to "Up", move_dashboard_project_art_piece_path(@project, piece, direction: "up") %>
+        <% end %>
+        <% unless index == @art_pieces.size - 1 %>
+          <%= button_to "Down", move_dashboard_project_art_piece_path(@project, piece, direction: "down") %>
+        <% end %>
+        <%= button_to "Remove", dashboard_project_art_piece_path(@project, piece), method: :delete,
+              form: { data: { turbo_confirm: "Remove #{piece.title}?" } } %>
+      </li>
+    <% end %>
+  </ol>
+<% else %>
+  <p>No pieces yet.</p>
+<% end %>
 
 <p>
-  <%= link_to "Edit", edit_dashboard_project_path(@project) %>
-  <%= button_to "Delete", dashboard_project_path(@project), method: :delete,
+  <%= link_to "Edit gallery", edit_dashboard_project_path(@project) %>
+  <%= button_to "Delete gallery", dashboard_project_path(@project), method: :delete,
         form: { data: { turbo_confirm: "Delete #{@project.title} and everything in it?" } } %>
   <%= link_to "All galleries", dashboard_projects_path %>
 </p>
