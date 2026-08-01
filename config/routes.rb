@@ -20,7 +20,18 @@ Rails.application.routes.draw do
 
   namespace :dashboard do
     root "projects#index"
-    resources :projects
+
+    resources :projects do
+      member do
+        post :move
+      end
+
+      resources :art_pieces, except: %i[index show] do
+        member do
+          post :move
+        end
+      end
+    end
   end
 
   # Defines the root path route ("/")

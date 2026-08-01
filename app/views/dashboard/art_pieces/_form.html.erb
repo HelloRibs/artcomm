@@ -1,0 +1,55 @@
+<%= form_with model: [ :dashboard, project, art_piece ] do |form| %>
+  <% if art_piece.errors.any? %>
+    <ul role="alert">
+      <% art_piece.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div>
+    <%= form.label :title %>
+    <%= form.text_field :title, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :image %>
+    <%#
+      Only preview an image that is actually on file. After a failed submit the
+      attachment is still unsaved — and may be a rejected non-image — and asking
+      for a variant of it raises, turning a validation error into a 500.
+    %>
+    <% if art_piece.image.attachment&.persisted? && art_piece.image.representable? %>
+      <p><%= image_tag art_piece.image.variant(:thumb), alt: art_piece.title, width: 200 %></p>
+      <small>Choosing a new file replaces this one.</small>
+    <% end %>
+    <%= form.file_field :image, accept: ArtPiece::ACCEPTED_IMAGE_TYPES.join(",") %>
+  </div>
+
+  <div>
+    <%= form.label :description %>
+    <%= form.text_area :description, rows: 4 %>
+  </div>
+
+  <fieldset>
+    <legend>Price (optional)</legend>
+    <small>Shown on your page so people know what to ask about. Nothing is sold here.</small>
+
+    <div>
+      <%= form.label :price_amount, "Amount" %>
+      <%= form.number_field :price_amount, step: "0.01", min: "0" %>
+    </div>
+
+    <div>
+      <%= form.label :price_currency_symbol, "Symbol" %>
+      <%= form.text_field :price_currency_symbol, placeholder: "$" %>
+    </div>
+
+    <div>
+      <%= form.label :price_currency_name, "Currency name" %>
+      <%= form.text_field :price_currency_name, placeholder: "MXN" %>
+    </div>
+  </fieldset>
+
+  <%= form.submit %>
+<% end %>

@@ -114,6 +114,86 @@ RSpec.describe "Public artist pages" do
     end
   end
 
+  describe "the gallery showcase" do
+    let(:project) { create(:project, :published, user: artist, title: "Blue Period") }
+
+    it "shows each piece with its image, title, and description" do
+      piece = create(:art_piece, project: project, title: "Sunrise", description: "Oil on canvas.")
+
+      get project_path(artist.username, project)
+
+      expect(response.body).to include("Sunrise", "Oil on canvas.")
+      expect(response.body).to match(/<img[^>]+/)
+      expect(piece.image).to be_attached
+    end
+
+    it "shows pieces in the artist's chosen order" do
+      create(:art_piece, project: project, title: "Second", position: 2)
+      create(:art_piece, project: project, title: "First", position: 1)
+
+      get project_path(artist.username, project)
+
+      expect(response.body.index("First")).to be < response.body.index("Second")
+    end
+
+    it "shows a price when the artist set one" do
+      create(:art_piece, :priced, project: project, title: "Sunrise")
+
+      get project_path(artist.username, project)
+
+      expect(response.body).to include("$1,200 MXN")
+    end
+
+    it "shows no price for an unpriced piece" do
+      create(:art_piece, project: project, title: "Sunrise")
+
+      get project_path(artist.username, project)
+
+      expect(response.body).not_to match(/\$\d/)
+    end
+
+    it "says so when the gallery is empty" do
+      get project_path(artist.username, project)
+
+      expect(response.body).to include("No pieces in this gallery yet")
+    end
+  end
+
+  describe "the WhatsApp contact button" do
+    let(:project) { create(:project, :published, user: artist, title: "Blue Period") }
+
+    it "links to wa.me with the artist's number and a drafted message" do
+      artist.update!(whatsapp_phone: "5215512345678")
+      create(:art_piece, :priced, project: project, title: "Sunrise")
+
+      get project_path(artist.username, project)
+
+      expect(response.body).to include("https://wa.me/5215512345678")
+      expect(CGI.unescapeHTML(response.body)).to include(CGI.escape("I'm interested in \"Sunrise\""))
+    end
+
+    it "includes the price and a link back to the gallery in the message" do
+      artist.update!(whatsapp_phone: "5215512345678")
+      create(:art_piece, :priced, project: project, title: "Sunrise")
+
+      get project_path(artist.username, project)
+      body = CGI.unescapeHTML(response.body)
+
+      expect(body).to include(CGI.escape("($1,200 MXN)"))
+      expect(body).to include(CGI.escape(project_url(artist.username, project)))
+    end
+
+    it "is hidden entirely when the artist hasn't given a number" do
+      artist.update!(whatsapp_phone: nil)
+      create(:art_piece, project: project, title: "Sunrise")
+
+      get project_path(artist.username, project)
+
+      expect(response.body).not_to include("wa.me")
+      expect(response.body).not_to include("WhatsApp")
+    end
+  end
+
   describe "route precedence" do
     it "keeps real application paths from being swallowed by /:username" do
       { "/login" => 200, "/signup" => 200, "/up" => 200 }.each do |path, status|

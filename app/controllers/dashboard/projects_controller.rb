@@ -1,13 +1,14 @@
 module Dashboard
   class ProjectsController < ApplicationController
     before_action :require_authentication
-    before_action :set_project, only: %i[show edit update destroy]
+    before_action :set_project, only: %i[show edit update destroy move]
 
     def index
-      @projects = current_user.projects
+      @projects = current_user.projects.to_a
     end
 
     def show
+      @art_pieces = @project.art_pieces.with_attached_image
     end
 
     def new
@@ -38,6 +39,11 @@ module Dashboard
     def destroy
       @project.destroy!
       redirect_to dashboard_projects_path, notice: "Gallery deleted."
+    end
+
+    def move
+      Reordering.new(current_user.projects).move(@project, direction: params[:direction])
+      redirect_to dashboard_projects_path
     end
 
     private
