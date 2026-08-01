@@ -55,8 +55,13 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 
-  # Highlight the fine-grained location where an error occurred [https://github.com/ruby/error_highlight]
-  gem "error_highlight", ">= 0.4.0", platforms: [ :ruby ]
+  # NOTE: Rails generates `gem "error_highlight", ">= 0.4.0"` here. It is left out
+  # deliberately. error_highlight is a *default gem*: Ruby activates it at
+  # interpreter startup, before Bundler runs, so Bundler cannot swap the built-in
+  # for a different version and aborts with Gem::LoadError. Locking any version
+  # breaks the moment an environment's built-in differs — GitHub's Ruby 3.4.10
+  # ships 0.7.0 while other 3.4.10 builds ship 0.7.2. Ruby provides
+  # error_highlight regardless, so depending on it buys nothing.
 end
 
 group :test do
