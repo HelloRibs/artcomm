@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || @artist&.public_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <%#
+    The artist's own page: no product name, no platform chrome, nothing linking
+    back to artcomm. Everything here belongs to the artist.
+  %>
+  <body>
+    <header>
+      <h1><%= link_to @artist.public_name, artist_path(@artist.username) %></h1>
+      <% if @artist.bio.present? %>
+        <p><%= @artist.bio %></p>
+      <% end %>
+    </header>
+
+    <% if flash[:notice] %><p role="status"><%= flash[:notice] %></p><% end %>
+
+    <main>
+      <%= yield %>
+    </main>
+  </body>
+</html>

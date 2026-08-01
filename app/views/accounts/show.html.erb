@@ -1,3 +1,35 @@
 <h1>Account</h1>
 
-<p>Email: <%= current_user.email %></p>
+<p>Email: <%= @user.email %></p>
+<p>Public page: <%= link_to artist_url(@user.username), artist_path(@user.username) %></p>
+
+<h2>Profile</h2>
+
+<%= form_with model: @user, url: account_path, method: :patch do |form| %>
+  <% if @user.errors.any? %>
+    <ul role="alert">
+      <% @user.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div>
+    <%= form.label :display_name, "Display name" %>
+    <%= form.text_field :display_name %>
+    <small>Shown to the public instead of your username.</small>
+  </div>
+
+  <div>
+    <%= form.label :bio %>
+    <%= form.text_area :bio, rows: 5 %>
+  </div>
+
+  <div>
+    <%= form.label :whatsapp_phone, "WhatsApp number" %>
+    <%= form.text_field :whatsapp_phone %>
+    <small>Include the country code. Buyers use this to reach you about a piece.</small>
+  </div>
+
+  <%= form.submit "Save profile" %>
+<% end %>

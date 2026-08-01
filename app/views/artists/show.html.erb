@@ -1,0 +1,15 @@
+<% if @projects.any? %>
+  <ul>
+    <% @projects.each do |project| %>
+      <li>
+        <%= link_to project.title, project_path(@artist.username, project) %>
+        <% unless project.published? %><em>(draft — only you can see this)</em><% end %>
+        <% if project.description.present? %>
+          <p><%= project.description %></p>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>Nothing here yet.</p>
+<% end %>

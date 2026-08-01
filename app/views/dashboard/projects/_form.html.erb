@@ -1,0 +1,37 @@
+<%= form_with model: [ :dashboard, project ] do |form| %>
+  <% if project.errors.any? %>
+    <ul role="alert">
+      <% project.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div>
+    <%= form.label :title %>
+    <%= form.text_field :title, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :description %>
+    <%= form.text_area :description, rows: 5 %>
+  </div>
+
+  <% if project.persisted? %>
+    <div>
+      <%= form.label :slug, "URL" %>
+      <%= form.text_field :slug %>
+      <small>Changing this breaks any link already shared.</small>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :published do %>
+      <%= form.check_box :published %>
+      Published
+    <% end %>
+    <small>Drafts are visible only to you.</small>
+  </div>
+
+  <%= form.submit %>
+<% end %>

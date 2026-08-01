@@ -22,6 +22,7 @@ RSpec.describe "Registrations" do
       {
         user: {
           email: "artist@example.com",
+          username: "newartist",
           password: "a very good password",
           password_confirmation: "a very good password"
         }
@@ -58,6 +59,30 @@ RSpec.describe "Registrations" do
       params = valid_params.deep_merge(user: { email: "nope" })
 
       expect { post signup_path, params: params }.not_to change(User, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "requires a username" do
+      params = valid_params.deep_merge(user: { username: "" })
+
+      expect { post signup_path, params: params }.not_to change(User, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "rejects a username that would shadow an application route" do
+      params = valid_params.deep_merge(user: { username: "login" })
+
+      expect { post signup_path, params: params }.not_to change(User, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "rejects a username already taken" do
+      create(:user, username: "newartist")
+
+      expect { post signup_path, params: valid_params }.not_to change(User, :count)
 
       expect(response).to have_http_status(:unprocessable_content)
     end

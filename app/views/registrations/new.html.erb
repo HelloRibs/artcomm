@@ -15,6 +15,12 @@
   </div>
 
   <div>
+    <%= form.label :username %>
+    <%= form.text_field :username, required: true, autocomplete: "username" %>
+    <small>Your public address: <%= root_url %>your-username</small>
+  </div>
+
+  <div>
     <%= form.label :password %>
     <%= form.password_field :password, required: true, autocomplete: "new-password" %>
   </div>
