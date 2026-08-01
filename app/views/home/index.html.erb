@@ -1,0 +1,7 @@
+<h1>artcomm</h1>
+
+<% if signed_in? %>
+  <p>Signed in as <%= current_user.email %>.</p>
+<% else %>
+  <p>A home for your artwork.</p>
+<% end %>

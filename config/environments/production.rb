@@ -37,6 +37,8 @@ Rails.application.configure do
   # config.action_dispatch.x_sendfile_header = "X-Accel-Redirect" # for NGINX
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
+  # TODO: move to an object store (S3/R2) before this runs on more than one host —
+  # local disk does not survive redeploys or scale past a single machine.
   config.active_storage.service = :local
 
   # Mount Action Cable outside main process or domain.
