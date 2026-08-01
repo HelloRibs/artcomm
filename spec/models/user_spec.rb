@@ -56,6 +56,93 @@ RSpec.describe User do
     end
   end
 
+  describe "username" do
+    it { is_expected.to validate_presence_of(:username) }
+
+    it "downcases and strips the username" do
+      expect(create(:user, username: "  PicassoJr  ").username).to eq("picassojr")
+    end
+
+    it "rejects usernames that collide with application routes" do
+      User::RESERVED_USERNAMES.each do |reserved|
+        user = build(:user, username: reserved)
+
+        expect(user).not_to be_valid, "expected #{reserved.inspect} to be reserved"
+        expect(user.errors[:username]).to include("is reserved")
+      end
+    end
+
+    # Public pages live at /:username, so any top-level path the router already
+    # claims would shadow an artist's page. This derives the list from the router
+    # rather than restating it, so adding a route later fails here instead of
+    # silently breaking whoever registered that name.
+    it "reserves every top-level route segment that could be claimed as a username" do
+      claimable = Rails.application.routes.routes.filter_map { |route|
+        path = route.path.spec.to_s
+        next if path.start_with?("/:")
+
+        segment = path[%r{\A/([^/(:]+)}, 1]
+        segment if segment&.match?(User::USERNAME_FORMAT)
+      }.uniq
+
+      expect(claimable - User::RESERVED_USERNAMES).to be_empty,
+        "these routes are claimable as usernames: #{(claimable - User::RESERVED_USERNAMES).inspect}"
+    end
+
+    it "rejects characters that aren't URL-safe" do
+      [ "has space", "has_underscore", "has.dot", "Ünicode", "-leading", "trailing-" ].each do |bad|
+        expect(build(:user, username: bad)).not_to be_valid, "expected #{bad.inspect} to be rejected"
+      end
+    end
+
+    it "accepts lowercase letters, digits, and interior hyphens" do
+      [ "abc", "a1b2", "my-gallery-name", "123" ].each do |good|
+        expect(build(:user, username: good)).to be_valid, "expected #{good.inspect} to be accepted"
+      end
+    end
+
+    it "enforces a length range" do
+      expect(build(:user, username: "ab")).not_to be_valid
+      expect(build(:user, username: "a" * 31)).not_to be_valid
+    end
+
+    it "rejects a duplicate username regardless of casing" do
+      create(:user, username: "taken")
+
+      expect(build(:user, username: "TAKEN")).not_to be_valid
+    end
+  end
+
+  describe "profile" do
+    it "shows the display name publicly when set" do
+      user = build(:user, username: "picasso", display_name: "Pablo Picasso")
+
+      expect(user.public_name).to eq("Pablo Picasso")
+    end
+
+    it "falls back to the username when the display name is blank" do
+      expect(build(:user, username: "picasso", display_name: " ").public_name).to eq("picasso")
+    end
+
+    it "strips everything but digits from the whatsapp number" do
+      user = create(:user, whatsapp_phone: "+52 (155) 1234-5678")
+
+      expect(user.whatsapp_phone).to eq("5215512345678")
+      expect(user).to be_whatsapp
+    end
+
+    it "treats a blank whatsapp number as absent rather than invalid" do
+      user = create(:user, whatsapp_phone: "")
+
+      expect(user.whatsapp_phone).to be_nil
+      expect(user).not_to be_whatsapp
+    end
+
+    it "rejects a whatsapp number with too few digits to dial" do
+      expect(build(:user, whatsapp_phone: "12345")).not_to be_valid
+    end
+  end
+
   describe ".authenticate_by_credentials" do
     let!(:user) { create(:user, email: "artist@example.com", password: "a very good password") }
 

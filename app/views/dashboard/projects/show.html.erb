@@ -1,0 +1,21 @@
+<h1><%= @project.title %></h1>
+
+<p><%= @project.published? ? "Published" : "Draft — only you can see this." %></p>
+
+<% if @project.description.present? %>
+  <p><%= @project.description %></p>
+<% end %>
+
+<p>
+  Public link:
+  <%= link_to project_url(current_user.username, @project), project_path(current_user.username, @project) %>
+</p>
+
+<%# Art piece management lands here in the next slice. %>
+
+<p>
+  <%= link_to "Edit", edit_dashboard_project_path(@project) %>
+  <%= button_to "Delete", dashboard_project_path(@project), method: :delete,
+        form: { data: { turbo_confirm: "Delete #{@project.title} and everything in it?" } } %>
+  <%= link_to "All galleries", dashboard_projects_path %>
+</p>

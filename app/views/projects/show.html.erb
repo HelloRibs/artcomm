@@ -1,0 +1,17 @@
+<% content_for :title, "#{@project.title} — #{@artist.public_name}" %>
+
+<article>
+  <h2><%= @project.title %></h2>
+  <% unless @project.published? %>
+    <p role="status"><em>Draft — only you can see this.</em></p>
+  <% end %>
+
+  <% if @project.description.present? %>
+    <p><%= @project.description %></p>
+  <% end %>
+
+  <%# Art pieces land here in the next slice. %>
+  <p>No pieces in this gallery yet.</p>
+</article>
+
+<p><%= link_to "← All galleries", artist_path(@artist.username) %></p>

@@ -1,0 +1,16 @@
+<h1>Your galleries</h1>
+
+<p><%= link_to "New gallery", new_dashboard_project_path %></p>
+
+<% if @projects.any? %>
+  <ul>
+    <% @projects.each do |project| %>
+      <li>
+        <%= link_to project.title, dashboard_project_path(project) %>
+        <%= project.published? ? "(published)" : "(draft)" %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>You haven't created a gallery yet.</p>
+<% end %>

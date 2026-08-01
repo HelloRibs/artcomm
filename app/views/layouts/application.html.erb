@@ -21,6 +21,7 @@
     <nav>
       <%= link_to "artcomm", root_path %>
       <% if signed_in? %>
+        <%= link_to "Galleries", dashboard_projects_path %>
         <%= link_to "Account", account_path %>
         <%= button_to "Sign out", logout_path, method: :delete %>
       <% else %>
