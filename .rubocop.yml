@@ -1,8 +1,30 @@
 # Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+plugins:
+  - rubocop-rspec
+
+AllCops:
+  NewCops: enable
+  Exclude:
+    - bin/**/*
+    - db/schema.rb
+    - vendor/**/*
+    - tmp/**/*
+    - storage/**/*
+    - node_modules/**/*
+
+# Specs read better as long descriptive blocks than as extracted helpers.
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Max: 4
+
+# Integration specs cover wiring and configuration, not a single class.
+RSpec/DescribeClass:
+  Exclude:
+    - spec/integration/**/*_spec.rb
